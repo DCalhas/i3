@@ -11,9 +11,18 @@
 
 set $mod Mod1
 
+# Colors
+#
+#
+
+
+set $text-color #000000
+set $inactive-text-color #FFFFFF
+
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:monospace 8
+font pango:System San Francisco Display 10
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -29,19 +38,22 @@ font pango:monospace 8
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
+
+#set TERMINAL /usr/bin/alacritty
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+
+#bindsym $mod+Return exec /usr/bin/alacritty
+bindsym $mod+Return exec terminator
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
+#bindsym $mod+d exec i3-dmenu-desktop
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-
+bindsym $mod+d exec i3-dmenu-desktop
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
@@ -93,10 +105,10 @@ bindsym $mod+a focus parent
 #bindsym $mod+d focus child
 
 # switch to workspace
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
+bindsym $mod+1 workspace "Fun"
+bindsym $mod+2 workspace "Study"
+bindsym $mod+3 workspace "Editor"; exec [ $(ps h -C subl3 | wc -l) = 0 ] && /usr/bin/subl3 -s
+bindsym $mod+4 workspace "Shell"; exec [ $(ps h -C terminator | wc -l) = 0 ] && /usr/bin/terminator
 bindsym $mod+5 workspace 5
 bindsym $mod+6 workspace 6
 bindsym $mod+7 workspace 7
@@ -105,16 +117,23 @@ bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+1 move container to workspace "Fun"
+bindsym $mod+Shift+2 move container to workspace "Study"
+bindsym $mod+Shift+3 move container to workspace "Editor"
+bindsym $mod+Shift+4 move container to workspace "Shell"
 bindsym $mod+Shift+5 move container to workspace 5
 bindsym $mod+Shift+6 move container to workspace 6
 bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
+
+
+# i3 gaps 
+
+gaps inner 10
+gaps outer 15
+
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -125,8 +144,10 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 
 # shutdown computer
-bindsym $mod+Shift+p exec poweroff
+bindsym $mod+Shift+Escape exec poweroff
 
+# lock screen 
+bindsym $mod+Shift+o exec "~/.config/i3/lock/lock.sh ~/.config/i3/lock/lock.png"
 # resize window (you can also use the mouse for that)
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
@@ -155,32 +176,41 @@ bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
+
 bar {
-	font pango:FontAwesome 10
-	status_command i3blocks # -c ~/.config/i3/i3blocks.conf
-	position top
-        tray_output primary
-	mode dock
-	hidden_state show
+	font pango:System San Francisco Display 10
+	status_command i3blocks -c ~/.config/i3/i3blocks.conf
+	position bottom
+	tray_output none
 	verbose yes
 	colors {
-		separator #969896
+		background $bg-color
+	    	separator #757575
+		#                  border             background         text
+		focused_workspace  $bg-color          $bg-color          $text-color
+		inactive_workspace $inactive-bg-color $inactive-bg-color $inactive-text-color
+		urgent_workspace   $urgent-bg-color   $urgent-bg-color   $text-color
 	}
 }
-
-# background image
-exec --no-startup-id feh --bg-scale ~/Downloads/745076-barcelona-wallpaper.jpg
-
-# HDMI output 
-exec --no-startup-id xrandr --output HDMI-1-1 --auto --left-of eDP-1-1 --auto
-
 # Audio controls
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 1 +5%
 bindsym XF86AudioLowerVolume exec pactl set-sink-volume 1 -5%
 bindsym XF86AudioMute exec pactl set-sink-mute 1 toggle
 
+# Brightness controls
+bindsym XF86MonBrightnessDown exec echo 200 > /sys/class/backlight/intel_backlight/brightness
+bindsym XF86MonBrightnessUp exec echo 600  > /sys/class/backlight/intel_backlight/brightness
 # Touchpad gestures
 
 
-# File manager
-bindsym $mod+m exec thunar
+#Use 25MiB of RAM for debug logs
+exec i3 --shmlog-size=26214400
+
+# Startup applications
+#
+#
+#
+
+exec --no-startup-id i3-msg 'workspace Study; exec /usr/bin/firefox'
+exec --no-startup-id i3-msg 'workspace Fun; exec /usr/bin/firefox'
+
